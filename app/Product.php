@@ -13,12 +13,12 @@ class Product extends Model
     protected $cost;
     protected $quantity;
 
-    public function __construct($sku, $price, $cost, $quantity)
+    public function __construct($sku, $price, $quantity, $cost)
     {
         $this->sku = $sku;
         $this->price = $price;
-        $this->cost = $cost;
         $this->quantity = $quantity;
+        $this->cost = $cost;
     }
 
     /**

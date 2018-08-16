@@ -19,9 +19,12 @@ class ProductRepository {
         $currencyData = $this->converter->convertCurrency($profitTotal);
         $product->profit_margin = $profitMargin;
         setlocale(LC_MONETARY, "en_US");
-        $product->profit_total = money_format("$%!i", $profitTotal);
+        $product->profit_total = $profitTotal;
         setlocale(LC_MONETARY, "en_CA");
-        $product->canadian_profit_total = money_format("$%!i", $currencyData['result']);
+        if (array_key_exists('result', $currencyData)) {
+            $product->canadian_profit_total = array_get($currencyData, 'result');
+        }
+
         return $product;
     }
 }

@@ -29,7 +29,8 @@ class CSVProcessController extends Controller {
             $product = $this->calculateProfits($product, $product->getCost(), $product->getPrice(), $product->getQuantity());
         }
 
-        return view('results')->with(["products" => $productsArray]);
+        $viewData = $this->calculateAverages($productsArray);
+        return view('results')->with(["products" => $productsArray, 'footerData' => $viewData]);
     }
 
     private function csvToArray($filename = '', $delimiter = ',') {
@@ -56,9 +57,50 @@ class CSVProcessController extends Controller {
 
     private function calculateProfits($product, $cost, $price, $qty)
     {
-        $profit = ($price - $cost) * $qty;
         $totalCost = $cost * $qty;
-        $profitMargin = ($profit - $totalCost) / $profit * 100;
+        $revenue = $qty * $price;
+        $profit = $revenue - $totalCost;
+        $profitMargin = ($profit / $revenue) * 100;
         $product = $this->repository->updateProduct($product, $profitMargin, $profit);
+    }
+
+    private function calculateAverages($products) {
+        if (!$products) {
+            return false;
+        }
+
+        $priceCount = 0;
+        $profitMarginCount = 0;
+        $avgPrice = 0;
+        $totalQty = 0;
+        $avgProfitMargin = 0;
+        $totalProfitUSD = 0;
+        $totalProfitCAD = 0;
+        foreach ($products as $product) {
+            if ($product->getPrice()) {
+                $priceCount++;
+            }
+            if ($product->profit_margin) {
+                $profitMarginCount++;
+            }
+            $avgPrice += $product->getPrice();
+            $totalQty += $product->getQuantity();
+            $avgProfitMargin += $product->profit_margin;
+            $totalProfitUSD += $product->profit_total;
+            $totalProfitCAD += $product->canadian_profit_total;
+        }
+
+        $avgPrice = $avgPrice / $priceCount;
+        $avgProfitMargin = $avgProfitMargin / $profitMarginCount;
+
+        $viewData = [
+            'average_price'         => $avgPrice,
+            'total_quantity'        => $totalQty,
+            'average_profit_margin' => $avgProfitMargin,
+            'total_profit_usd'      => $totalProfitUSD,
+            'total_profit_cad'      => $totalProfitCAD
+        ];
+
+        return $viewData;
     }
 }
