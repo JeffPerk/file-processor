@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Product;
+use App\Http\Repositories\ProductRepository;
 use App\Http\Controllers\Controller;
 
 class CSVProcessController extends Controller {
     /*
      * Controller formats csv file data and returns to view
      */
+    protected $productRepository;
+
+    public function __construct(ProductRepository $productRepository)
+    {
+        $this->repository = $productRepository;
+    }
 
     public function processCSVFile() {
         $productsArray = [];
@@ -19,8 +26,9 @@ class CSVProcessController extends Controller {
         }
 
         foreach ($productsArray as $product) {
-            $this->calculateProfitMargin($product->getCost(), $product->getPrice(), $product->getQuantity());
+            $product = $this->calculateProfits($product, $product->getCost(), $product->getPrice(), $product->getQuantity());
         }
+
         return view('results')->with(["products" => $productsArray]);
     }
 
@@ -30,7 +38,7 @@ class CSVProcessController extends Controller {
         }
 
         $header = null;
-        $data = array();
+        $data = [];
         if (($handle = fopen($filename, 'r')) !== false)  {
             while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
                 if (!$header) {
@@ -46,8 +54,11 @@ class CSVProcessController extends Controller {
         return $data;
     }
 
-    private function calculateProfitMargin($cost, $price, $qty)
+    private function calculateProfits($product, $cost, $price, $qty)
     {
-        dd($cost, $price, $qty);
+        $profit = ($price - $cost) * $qty;
+        $totalCost = $cost * $qty;
+        $profitMargin = ($profit - $totalCost) / $profit * 100;
+        $product = $this->repository->updateProduct($product, $profitMargin, $profit);
     }
 }

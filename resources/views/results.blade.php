@@ -30,14 +30,14 @@
                                 <td>{{ $product->getCost() }}</td>
                                 <td>{{ $product->getPrice() }}</td>
                                 <td>{{ $product->getQuantity() }}</td>
+                                <td>{{ round($product->profit_margin, 2) }}%</td>
+                                <td>{{ $product->profit_total }}</td>
+                                <td>{{ $product->canadian_profit_total }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
-        {{--@foreach($products as $index => $product)--}}
-            {{--{{ $product->getSku() }}--}}
-        {{--@endforeach--}}
     </div>
 @endsection
