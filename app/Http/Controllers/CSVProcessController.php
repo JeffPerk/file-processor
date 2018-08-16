@@ -11,8 +11,17 @@ class CSVProcessController extends Controller {
      */
 
     public function processCSVFile() {
-        $data = $this->csvToArray(request('csv-upload'));
-        dd($data);
+        $productsArray = [];
+        $products = $this->csvToArray(request('csv-upload'));
+        foreach ($products as $product) {
+            $newProduct = new Product($product["sku"], $product["price"], $product["qty"], $product["cost"]);
+            array_push($productsArray, $newProduct);
+        }
+
+        foreach ($productsArray as $product) {
+            $this->calculateProfitMargin($product->getCost(), $product->getPrice(), $product->getQuantity());
+        }
+        return view('results')->with(["products" => $productsArray]);
     }
 
     private function csvToArray($filename = '', $delimiter = ',') {
@@ -35,5 +44,10 @@ class CSVProcessController extends Controller {
         }
 
         return $data;
+    }
+
+    private function calculateProfitMargin($cost, $price, $qty)
+    {
+        dd($cost, $price, $qty);
     }
 }

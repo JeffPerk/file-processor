@@ -18,7 +18,6 @@
 @endsection
 
 @section('content')
-    @include('shared.navbar')
     <div class="container">
         <div class="jumbotron">
             <h1 class="display-4">File Processor 5000</h1>
