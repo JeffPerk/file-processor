@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('home');
 });
 
-Route::post("process", [
+Route::post("results", [
     'as' => "process.csv",
     "uses" => "CSVProcessController@processCSVFile"
 ]);
